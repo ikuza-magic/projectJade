@@ -71,6 +71,7 @@
     <Compile Include="Assets\MapCreate.cs" />
     <Compile Include="Assets\Script\charaMoveManager.cs" />
     <Compile Include="Assets\Script\charaSpriteManager.cs" />
+    <Compile Include="Assets\messageFrame.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>
