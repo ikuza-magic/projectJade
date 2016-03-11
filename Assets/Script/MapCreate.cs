@@ -9,13 +9,16 @@ public class MapCreate : MonoBehaviour {
 	int mapXSize = 10;
 	int mapYSize = 10;
 
-	float chipSize = 1.00f;
-	float spriteSize = 0.98f;
+	public float chipSize = 1.00f;
+	public float spriteSize = 0.98f;
 
 	Sprite[] mapImageSprites;
+	ChipKind[,] map;
 
 	// Use this for initialization
 	void Start () {
+	}
+	void Awake () {
 		this.transform.position = new Vector3 (0.0f, 0.0f, 0.0f);
 
 		mapImageSprites = Resources.LoadAll<Sprite> ("Sprite/field/mapChip");
@@ -23,8 +26,7 @@ public class MapCreate : MonoBehaviour {
 		if (sceneId == 0) {
 			mapXSize = 10;
 			mapYSize = 10;
-			ChipKind kind = ChipKind.Grass;
-			ChipKind[,] map = new ChipKind[10, 10] {{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass },
+			map = new ChipKind[10, 10] {{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass },
 				{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.Grass, ChipKind.Grass },
 				{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.Grass, ChipKind.Grass },
 				{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass },
@@ -51,13 +53,41 @@ public class MapCreate : MonoBehaviour {
 						int imageIndex = int.Parse(mapInfos [i, j]["chipId"]);
 						tmpObj.AddComponent<SpriteRenderer> ().sprite = mapImageSprites [imageIndex - h * 10];
 						//GameObject tmpObj = new GameObject ("Sprite").AddComponent<SpriteRenderer> ().sprite = mapImageSprites [map [i, j]];
-						tmpObj.transform.position = new Vector3 (j * chipSize, (mapYSize - (i-h) - 1) * chipSize, (mapYSize - i - 1) * chipSize*0.1f);
+						tmpObj.transform.position = new Vector3 (j * chipSize, (mapYSize - (i-h) - 1) * chipSize, getZPosition(j,mapYSize - 1 - i));
 						tmpObj.transform.parent = this.transform;
 						tmpObj.transform.localScale = new Vector3 (1.0f / spriteSize, 1.0f / spriteSize, 0.0f);
 					}
 				}
 			}
 		}
+	}
+
+	public bool canThrough(int x,int y) {
+		int I = mapYSize - y - 1;
+		int J = x;
+		if (J < 0 || I < 0 || J >= mapXSize || I >= mapYSize) {
+			return false;
+		}
+		return Convert.ToBoolean (getChipInfo (map [I, J]) ["canThrough"]);
+	}
+
+	public float getZPosition(int x,int y) {
+		int I = mapYSize - y - 1;
+		int J = x;
+		if (J < 0 || I < 0 || J >= mapXSize || I >= mapYSize) {
+			return -10000.0f;
+		}
+		return (mapYSize - I - 1) * chipSize*0.1f;
+	}
+
+	public float[] getXYPosition(int x,int y) {
+		int I = mapYSize - y - 1;
+		int J = x;
+		if (J < 0 || I < 0 || J >= mapXSize || I >= mapYSize) {
+			return new float[] { -10000.0f, -10000.0f };
+		}
+		int height = int.Parse(getChipInfo (map [I, J])["height"]);
+		return new float[] { J * chipSize, (mapYSize - (I - (height-1)) - 1) * chipSize };
 	}
 	
 	// Update is called once per frame
@@ -77,12 +107,12 @@ public class MapCreate : MonoBehaviour {
 
 		dic ["chipId"] = ((int)chipId).ToString ();
 
-		string canTrough = "false";
+		string canThrough = "false";
 		if(chipId == ChipKind.Grass) {
-			canTrough = "true";
+			canThrough = "true";
 		}
 
-		dic["canTrough"] = canTrough;
+		dic["canThrough"] = canThrough;
 
 		int height = 1;
 		if (chipId == ChipKind.GrassTree || chipId == ChipKind.GrassStone) {

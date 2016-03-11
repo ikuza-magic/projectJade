@@ -13,6 +13,8 @@ public class charaSpriteManager : MonoBehaviour {
     };
     public direction directionMode;
 
+	MapCreate mapCreate;
+
     Sprite[,] walk = new Sprite[3,8];
     Sprite[,] stay = new Sprite[2, 8];
 
@@ -25,7 +27,8 @@ public class charaSpriteManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        
+		mapCreate = GameObject.Find ("MapCreate").GetComponent<MapCreate> ();
+		this.transform.localScale = new Vector3 (1.0f / mapCreate.spriteSize, 1.0f / mapCreate.spriteSize, 0.0f);
         //走る
         for (int ani = 0; ani < 3; ani++)
         {

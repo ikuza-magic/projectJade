@@ -6,12 +6,22 @@ public class charaMoveManager : MonoBehaviour {
 
     charaSpriteManager SpriteManager;
     Vector3 moveDirection;
-    float speed;
+	MapCreate mapCreate;
+	int mapx = 1;
+	int mapy = 1;
+	public float modifyHeightYScale = 0.25f;
+
+
 	// Use this for initialization
 	void Start () {
-        speed = 3.0f;
         moveDirection = Vector3.zero;
         SpriteManager = GetComponent<charaSpriteManager>();
+		mapCreate = GameObject.Find ("MapCreate").GetComponent<MapCreate> ();
+
+		float [] xy = mapCreate.getXYPosition(mapx,mapy);
+		float z = mapCreate.getZPosition (mapx, mapy);
+		Debug.Log (" " + xy[0] + " " +xy[1] + " " + z);
+		transform.position = new Vector3 (xy [0], xy [1] + mapCreate.chipSize*modifyHeightYScale, z-0.001f);
 	}
 	
 	// Update is called once per frame
@@ -24,49 +34,76 @@ public class charaMoveManager : MonoBehaviour {
             if (Input.GetKey(KeyCode.DownArrow)) KeyInput(8);
             if (Input.GetKey(KeyCode.RightArrow)) KeyInput(4);
             if (Input.GetKey(KeyCode.LeftArrow)) KeyInput(1);
-
-            Move(moveDirection);
         }
 	
 	}
+
+
+
     void KeyInput(int keyDirectionID)
     {
-        if (keyDirectionID == 1)
-        {
-            SpriteManager.motionID = 1;
-            SpriteManager.directionMode = charaSpriteManager.direction.left;
-            moveDirection += Vector3.left;
-        }
-        if (keyDirectionID == 2)
-        {
-            SpriteManager.motionID = 1;
-            SpriteManager.directionMode = charaSpriteManager.direction.up;
-            moveDirection += Vector3.up;
-        }
-        if (keyDirectionID == 4)
-        {
-            SpriteManager.motionID = 1;
-            SpriteManager.directionMode = charaSpriteManager.direction.right;
-            moveDirection += Vector3.right;
-        }
-        if (keyDirectionID == 8)
-        {
-            SpriteManager.motionID = 1;
-            SpriteManager.directionMode = charaSpriteManager.direction.down;
-            moveDirection += Vector3.down;
-        }
-
-
-
+		if (keyDirectionID == 1) {
+			SpriteManager.motionID = 1;
+			SpriteManager.directionMode = charaSpriteManager.direction.left;
+			Move (charaSpriteManager.direction.left);
+		} else if (keyDirectionID == 2) {
+			SpriteManager.motionID = 1;
+			SpriteManager.directionMode = charaSpriteManager.direction.up;
+			Move (charaSpriteManager.direction.up);
+		} else if (keyDirectionID == 4) {
+			SpriteManager.motionID = 1;
+			SpriteManager.directionMode = charaSpriteManager.direction.right;
+			Move (charaSpriteManager.direction.right);
+		} else if (keyDirectionID == 8) {
+			SpriteManager.motionID = 1;
+			SpriteManager.directionMode = charaSpriteManager.direction.down;
+			Move (charaSpriteManager.direction.down);
+		} else {
+			SpriteManager.motionID = 0;
+		}
     }
-    void Move(Vector3 _moveDirection)
+	void Move(charaSpriteManager.direction direction)
     {
-        
-        Vector3 moveDirection = _moveDirection.normalized * speed;
-        transform.Translate(
-            moveDirection.x * Time.deltaTime,
-            moveDirection.y * Time.deltaTime,
-            moveDirection.z * 0,
-            Space.World);
+		int nextX = 0, nextY = 0;
+		if (direction == charaSpriteManager.direction.up) {
+			nextX = mapx + 0;
+			nextY = mapy + 1;
+		}
+		if (direction == charaSpriteManager.direction.down) {
+			nextX = mapx + 0;
+			nextY = mapy - 1;
+		}
+		if (direction == charaSpriteManager.direction.right) {
+			nextX = mapx + 1;
+			nextY = mapy + 0;
+		}
+		if (direction == charaSpriteManager.direction.left) {
+			nextX = mapx - 1;
+			nextY = mapy + 0;
+		}
+
+		if (mapCreate.canThrough (nextX, nextY)) {
+			StartCoroutine (moveCoroutine(nextX,nextY));
+		}
     }
+
+	private IEnumerator moveCoroutine(int nextX,int nextY) {
+		SpriteManager.motionID = 1;
+		isControl = false;
+		float [] xy = mapCreate.getXYPosition(mapx,mapy);
+		float[] axy = mapCreate.getXYPosition (nextX, nextY);
+		float z = mapCreate.getZPosition (mapx, mapy);
+		float az = mapCreate.getZPosition (nextX, nextY);
+		if (az > z)
+			az = z;
+		for (float i = 0.0f; i < 1.0f; i += 1.0f * Time.deltaTime*5) {
+			transform.position = new Vector3 (xy [0] * (1 - i) + axy [0] * i, xy [1] * (1 - i) + axy [1] * i  + mapCreate.chipSize*modifyHeightYScale, az-0.001f);
+			yield return null;
+		}
+		transform.position = new Vector3 (axy [0], axy [1] + mapCreate.chipSize*modifyHeightYScale, az-0.001f);
+
+		mapx = nextX;
+		mapy = nextY;
+		isControl = true;
+	}
 }
