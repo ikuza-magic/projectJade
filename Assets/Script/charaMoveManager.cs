@@ -9,7 +9,7 @@ public class charaMoveManager : MonoBehaviour {
     float speed;
 	// Use this for initialization
 	void Start () {
-        speed = 8.0f;
+        speed = 3.0f;
         moveDirection = Vector3.zero;
         SpriteManager = GetComponent<charaSpriteManager>();
 	}
@@ -34,25 +34,25 @@ public class charaMoveManager : MonoBehaviour {
         if (keyDirectionID == 1)
         {
             SpriteManager.motionID = 1;
-            SpriteManager.directionID = 1;
+            SpriteManager.directionMode = charaSpriteManager.direction.left;
             moveDirection += Vector3.left;
         }
         if (keyDirectionID == 2)
         {
             SpriteManager.motionID = 1;
-            SpriteManager.directionID = 2;
+            SpriteManager.directionMode = charaSpriteManager.direction.up;
             moveDirection += Vector3.up;
         }
         if (keyDirectionID == 4)
         {
             SpriteManager.motionID = 1;
-            SpriteManager.directionID = 4;
+            SpriteManager.directionMode = charaSpriteManager.direction.right;
             moveDirection += Vector3.right;
         }
         if (keyDirectionID == 8)
         {
             SpriteManager.motionID = 1;
-            SpriteManager.directionID = 8;
+            SpriteManager.directionMode = charaSpriteManager.direction.down;
             moveDirection += Vector3.down;
         }
 

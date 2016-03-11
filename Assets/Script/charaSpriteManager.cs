@@ -4,9 +4,16 @@ using System.Collections;
 public class charaSpriteManager : MonoBehaviour {
 
     public int motionID;
-    public int directionID;
+    public enum direction
+    {
+        left,
+        up,
+        right,
+        down,
+    };
+    public direction directionMode;
 
-    Sprite[,] run = new Sprite[3,8];
+    Sprite[,] walk = new Sprite[3,8];
     Sprite[,] stay = new Sprite[2, 8];
 
     SpriteRenderer spriteRenderer;
@@ -18,21 +25,22 @@ public class charaSpriteManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        
         //走る
         for (int ani = 0; ani < 3; ani++)
         {
-            for (int d = 0; d < 8; d++)
-            {
-                run[ani, d] = Resources.Load<Sprite>("Sprite/charaSprite/" + charaName + "_run_" + ToDirectionID(d) + "_" + ani);
-            }
+            walk[ani, 0] = Resources.Load<Sprite>("Sprite/charaSprite/" + charaName + "/" + charaName + "_left_" + "walk_" + ani);
+            walk[ani, 1] = Resources.Load<Sprite>("Sprite/charaSprite/" + charaName + "/" + charaName + "_up_" + "walk_" + ani);
+            walk[ani, 2] = Resources.Load<Sprite>("Sprite/charaSprite/" + charaName + "/" + charaName + "_right_" + "walk_" + ani);
+            walk[ani, 3] = Resources.Load<Sprite>("Sprite/charaSprite/" + charaName + "/" + charaName + "_down_" + "walk_" + ani);
         }
         //STAY
-        for (int ani = 0; ani < 2; ani++)
+        for (int ani = 0; ani < 1; ani++)
         {
-            for (int d = 0; d < 8; d++)
-            {
-                stay[ani, d] = Resources.Load<Sprite>("Sprite/charaSprite/" + charaName + "_stay_" + ToDirectionID(d) + "_" + ani);
-            }
+            stay[ani, 0] = Resources.Load<Sprite>("Sprite/charaSprite/" + charaName + "/" + charaName + "_left_" + "stay_" + ani);
+            stay[ani, 1] = Resources.Load<Sprite>("Sprite/charaSprite/" + charaName + "/" + charaName + "_up_" + "stay_" + ani);
+            stay[ani, 2] = Resources.Load<Sprite>("Sprite/charaSprite/" + charaName + "/" + charaName + "_right_" + "stay_" + ani);
+            stay[ani, 3] = Resources.Load<Sprite>("Sprite/charaSprite/" + charaName + "/" + charaName + "_down_" + "stay_" + ani);
         }
         spriteRenderer = GetComponent<SpriteRenderer>();
         aniID = 0;
@@ -43,16 +51,31 @@ public class charaSpriteManager : MonoBehaviour {
 	void Update () {
 	    if (motionID == 0)
         {
-            spriteRenderer.sprite = stay[0, ToDirectionNum(directionID)];
+            if (directionMode == direction.left)
+                spriteRenderer.sprite = stay[0, 0];
+            if (directionMode == direction.up)
+                spriteRenderer.sprite = stay[0, 1];
+            if (directionMode == direction.right)
+                spriteRenderer.sprite = stay[0, 2];
+            if (directionMode == direction.down)
+                spriteRenderer.sprite = stay[0, 3];
+
         }
         if (motionID == 1)
         {
-            spriteRenderer.sprite = run[aniID, ToDirectionNum(directionID)];
-            aniTime += 10.0f * Time.deltaTime;
+            if (directionMode == direction.left)
+                spriteRenderer.sprite = walk[aniID, 0];
+            if (directionMode == direction.up)
+                spriteRenderer.sprite = walk[aniID, 1];
+            if (directionMode == direction.right)
+                spriteRenderer.sprite = walk[aniID, 2];
+            if (directionMode == direction.down)
+                spriteRenderer.sprite = walk[aniID, 3];
+            aniTime += 8.0f * Time.deltaTime;
             if (0.0f <= aniTime && aniTime < 1.0f) aniID = 0;
             if (1.0f <= aniTime && aniTime < 2.0f) aniID = 1;
-            if (2.0f <= aniTime && aniTime < 3.0f) aniID = 0;
-            if (3.0f <= aniTime && aniTime < 4.0f) aniID = 2;
+            if (2.0f <= aniTime && aniTime < 3.0f) aniID = 2;
+            if (3.0f <= aniTime && aniTime < 4.0f) aniID = 1;
             if (4.0f <= aniTime) aniTime = 0.0f;
         }
     }
