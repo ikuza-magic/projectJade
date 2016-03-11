@@ -6,8 +6,8 @@ public class MapCreate : MonoBehaviour {
 
 	public int sceneId;
 
-	int mapXSize = 10;
-	int mapYSize = 10;
+	public int mapXSize = 10;
+	public int mapYSize = 10;
 
 	public float chipSize = 1.00f;
 	public float spriteSize = 0.98f;
@@ -24,9 +24,9 @@ public class MapCreate : MonoBehaviour {
 		mapImageSprites = Resources.LoadAll<Sprite> ("Sprite/field/mapChip");
 
 		if (sceneId == 0) {
-			mapXSize = 10;
-			mapYSize = 10;
-			map = new ChipKind[10, 10] {{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass },
+			mapXSize = 40;
+			mapYSize = 40;
+			ChipKind[,] tmpmap = new ChipKind[10, 10] {{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass },
 				{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.Grass, ChipKind.Grass },
 				{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.Grass, ChipKind.Grass },
 				{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass },
@@ -38,7 +38,14 @@ public class MapCreate : MonoBehaviour {
 				{ ChipKind.GrassTree, ChipKind.Grass, ChipKind.GrassTree, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass }
 			};
 
-			Dictionary<string,string>[,] mapInfos = new Dictionary<string, string>[10, 10];
+			map = new ChipKind[mapYSize, mapXSize];
+			for (int i = 0; i < mapYSize; i++) {
+				for (int j = 0; j < mapXSize; j++) {
+					map [i, j] = tmpmap [i % 10, j % 10];
+				}
+			}
+
+			Dictionary<string,string>[,] mapInfos = new Dictionary<string, string>[mapYSize, mapXSize];
 			for (int i = 0; i < mapYSize; i++) {
 				for (int j = 0; j < mapXSize; j++) {
 					mapInfos [i, j] = getChipInfo (map [i, j]);
