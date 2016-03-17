@@ -14,28 +14,150 @@ public class MapCreate : MonoBehaviour {
 
 	Sprite[] mapImageSprites;
 	ChipKind[,] map;
+	List< Dictionary<string,string> > actions;
+	enumDefine enumDefine;
+	List< GameObject > mapObjects;
+
 
 	// Use this for initialization
 	void Start () {
 	}
 	void Awake () {
+		enumDefine = GetComponent<enumDefine>();
+
 		this.transform.position = new Vector3 (0.0f, 0.0f, 0.0f);
 
 		mapImageSprites = Resources.LoadAll<Sprite> ("Sprite/field/mapChip");
 
+		mapObjects = new List< GameObject> ();
+
+		loadMap ();
+	}
+
+	public void loadMap() {
+		if (actions == null) {
+			actions = new List<Dictionary<string,string> >() { };
+		}
+		actions.Clear ();
+		for (int i = 0; i < mapObjects.Count; i++) {
+			Destroy (mapObjects [i]);
+		}
+		mapObjects.Clear ();
+
 		if (sceneId == 0) {
 			mapXSize = 40;
 			mapYSize = 40;
-			ChipKind[,] tmpmap = new ChipKind[10, 10] {{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass },
-				{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.Grass, ChipKind.Grass },
-				{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.Grass, ChipKind.Grass },
-				{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass },
-				{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.GrassStone, ChipKind.Grass, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.Grass, ChipKind.Grass },
-				{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.Grass, ChipKind.Grass },
-				{ ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.Grass, ChipKind.Grass },
-				{ ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.GrassTree, ChipKind.GrassTree, ChipKind.Grass, ChipKind.GrassTree, ChipKind.Grass, ChipKind.Grass },
-				{ ChipKind.GrassTree, ChipKind.Grass, ChipKind.GrassTree, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass },
-				{ ChipKind.GrassTree, ChipKind.Grass, ChipKind.GrassTree, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass, ChipKind.Grass }
+			ChipKind[,] tmpmap = new ChipKind[10, 10] { {
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass
+				}, {
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.Grass,
+					ChipKind.Grass
+				}, {
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.Grass,
+					ChipKind.Grass
+				}, {
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass
+				}, {
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.GrassStone,
+					ChipKind.Grass,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.Grass,
+					ChipKind.Grass
+				}, {
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.Grass,
+					ChipKind.Grass
+				}, {
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.Grass,
+					ChipKind.Grass
+				}, {
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.GrassTree,
+					ChipKind.GrassTree,
+					ChipKind.Grass,
+					ChipKind.GrassTree,
+					ChipKind.Grass,
+					ChipKind.Grass
+				}, {
+					ChipKind.GrassTree,
+					ChipKind.Grass,
+					ChipKind.GrassTree,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass
+				}, {
+					ChipKind.GrassTree,
+					ChipKind.Grass,
+					ChipKind.GrassTree,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass,
+					ChipKind.Grass
+				}
 			};
 
 			map = new ChipKind[mapYSize, mapXSize];
@@ -45,28 +167,99 @@ public class MapCreate : MonoBehaviour {
 				}
 			}
 
-			Dictionary<string,string>[,] mapInfos = new Dictionary<string, string>[mapYSize, mapXSize];
-			for (int i = 0; i < mapYSize; i++) {
-				for (int j = 0; j < mapXSize; j++) {
-					mapInfos [i, j] = getChipInfo (map [i, j]);
-				}
-			}
+			Dictionary<string,string> action = new Dictionary<string,string> (){{"kind",enumDefine.getChipActionKindString(ChipActionKind.MoveScene)},
+				{"i","7"},
+				{"j","6"},
+				{"toScene","1"},
+				{"toI","4"},
+				{"toJ","1"},
+				{"toD","right"},
+			};
+			Dictionary<string,string> action2 = new Dictionary<string,string> (){{"kind",enumDefine.getChipActionKindString(ChipActionKind.MoveScene)},
+				{"i","37"},
+				{"j","36"},
+				{"toScene","1"},
+				{"toI","7"},
+				{"toJ","4"},
+				{"toD","up"},
+			};
 
-			for (int i = 0; i < mapYSize; i++) {
-				for (int j = 0; j < mapXSize; j++) {
-					int height = int.Parse(mapInfos [i, j]["height"]);
-					for (int h = 0; h < height; h++) {
-						GameObject tmpObj = new GameObject ("Sprite");
-						int imageIndex = int.Parse(mapInfos [i, j]["chipId"]);
-						tmpObj.AddComponent<SpriteRenderer> ().sprite = mapImageSprites [imageIndex - h * 10];
-						//GameObject tmpObj = new GameObject ("Sprite").AddComponent<SpriteRenderer> ().sprite = mapImageSprites [map [i, j]];
-						tmpObj.transform.position = new Vector3 (j * chipSize, (mapYSize - (i-h) - 1) * chipSize, getZPosition(j,mapYSize - 1 - i));
-						tmpObj.transform.parent = this.transform;
-						tmpObj.transform.localScale = new Vector3 (1.0f / spriteSize, 1.0f / spriteSize, 0.0f);
-					}
+			actions.Add (action);
+			actions.Add (action2);
+		}
+
+		if (sceneId == 1) {
+			mapXSize = 10;
+			mapYSize = 10;
+			map = new ChipKind[10, 10] { {ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None},
+				{ChipKind.None,ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.None,ChipKind.None},
+				{ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.None},
+				{ChipKind.GrassTree,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.GrassTree,ChipKind.None},
+				{ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.GrassTree,ChipKind.None},
+				{ChipKind.GrassTree,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.GrassTree,ChipKind.None},
+				{ChipKind.GrassTree,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.GrassTree,ChipKind.None},
+				{ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.Grass,ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.None},
+				{ChipKind.None,ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.Grass,ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.GrassTree,ChipKind.None,ChipKind.None},
+				{ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None},
+			};
+
+			Dictionary<string,string> action = new Dictionary<string,string> (){{"kind",enumDefine.getChipActionKindString(ChipActionKind.MoveScene)},
+				{"i","4"},
+				{"j","0"},
+				{"toScene","0"},
+				{"toI","8"},
+				{"toJ","6"},
+				{"toD","down"},
+			};
+			Dictionary<string,string> action2 = new Dictionary<string,string> (){{"kind",enumDefine.getChipActionKindString(ChipActionKind.MoveScene)},
+				{"i","8"},
+				{"j","4"},
+				{"toScene","0"},
+				{"toI","38"},
+				{"toJ","36"},
+				{"toD","down"},
+			};
+
+			actions.Add (action);
+			actions.Add (action2);
+		}
+
+		Dictionary<string,string>[,] mapInfos = new Dictionary<string, string>[mapYSize, mapXSize];
+		for (int i = 0; i < mapYSize; i++) {
+			for (int j = 0; j < mapXSize; j++) {
+				mapInfos [i, j] = getChipInfo (map [i, j]);
+			}
+		}
+
+		for (int i = 0; i < mapYSize; i++) {
+			for (int j = 0; j < mapXSize; j++) {
+				if (map [i, j] == ChipKind.None)
+					continue;
+				int height = int.Parse(mapInfos [i, j]["height"]);
+				for (int h = 0; h < height; h++) {
+					GameObject tmpObj = new GameObject ("Sprite");
+					int imageIndex = int.Parse(mapInfos [i, j]["chipId"]);
+					tmpObj.AddComponent<SpriteRenderer> ().sprite = mapImageSprites [imageIndex - h * 10];
+					//GameObject tmpObj = new GameObject ("Sprite").AddComponent<SpriteRenderer> ().sprite = mapImageSprites [map [i, j]];
+					tmpObj.transform.position = new Vector3 (j * chipSize, (mapYSize - (i-h) - 1) * chipSize, getZPosition(j,mapYSize - 1 - i));
+					tmpObj.transform.parent = this.transform;
+					tmpObj.transform.localScale = new Vector3 (1.0f / spriteSize, 1.0f / spriteSize, 0.0f);
+
+					mapObjects.Add (tmpObj);
 				}
 			}
 		}
+	}
+
+	public Dictionary<string,string> getRelatedAction(int x,int y) {
+		Dictionary<string,string> action = new Dictionary<string,string> (){ {"kind",enumDefine.getChipActionKindString (ChipActionKind.None)},
+		};
+		for (int i = 0; i < actions.Count; i++) {
+			if (int.Parse (actions [i] ["i"]) == mapYSize - y - 1 && int.Parse (actions [i] ["j"]) == x) {
+				return actions [i];
+			}
+		}
+		return action;
 	}
 
 	public bool canThrough(int x,int y) {

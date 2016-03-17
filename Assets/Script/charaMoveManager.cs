@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class charaMoveManager : MonoBehaviour {
     public bool isControl;
@@ -11,9 +12,13 @@ public class charaMoveManager : MonoBehaviour {
 	int mapy = 1;
 	public float modifyHeightYScale = 0.25f;
 
+	enumDefine enumDefine;
+
 
 	// Use this for initialization
 	void Start () {
+		enumDefine = GameObject.Find ("MapCreate").GetComponent<enumDefine>();
+
         moveDirection = Vector3.zero;
         SpriteManager = GetComponent<charaSpriteManager>();
 		mapCreate = GameObject.Find ("MapCreate").GetComponent<MapCreate> ();
@@ -104,6 +109,22 @@ public class charaMoveManager : MonoBehaviour {
 
 		mapx = nextX;
 		mapy = nextY;
+
+		//移動後の強制アクションをチェック
+		Dictionary<string,string> action = mapCreate.getRelatedAction (mapx, mapy);
+		if (enumDefine.getChipActionKindEnum (action ["kind"]) == ChipActionKind.MoveScene) {
+			//シーン移動
+			int moveToSceneId = int.Parse (action ["toScene"]);
+			mapCreate.sceneId = moveToSceneId;
+			mapCreate.loadMap ();
+			mapx = int.Parse (action ["toJ"]);
+			mapy = mapCreate.mapYSize - int.Parse (action ["toI"]) - 1;
+			SpriteManager.directionMode = SpriteManager.getDirectionEnum (action ["toD"]);
+			float [] xy2 = mapCreate.getXYPosition(mapx,mapy);
+			float z2 = mapCreate.getZPosition (mapx, mapy);
+			transform.position = new Vector3 (xy2[0],xy2[1] + mapCreate.chipSize*modifyHeightYScale, z2-0.001f);
+		}
+
 		isControl = true;
 	}
 }

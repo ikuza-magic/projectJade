@@ -109,4 +109,14 @@ public class charaSpriteManager : MonoBehaviour {
         if (directionID == 9) getID = 7;
         return getID;
     }
+
+	public direction getDirectionEnum(string d) {
+		if (d == "left")
+			return direction.left;
+		if (d == "right")
+			return direction.right;
+		if (d == "down")
+			return direction.down;
+		return direction.up;
+	}
 }
