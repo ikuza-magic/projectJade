@@ -26,7 +26,7 @@ public class charaMoveManager : MonoBehaviour {
 		float [] xy = mapCreate.getXYPosition(mapx,mapy);
 		float z = mapCreate.getZPosition (mapx, mapy);
 		Debug.Log (" " + xy[0] + " " +xy[1] + " " + z);
-		transform.position = new Vector3 (xy [0], xy [1] + mapCreate.chipSize*modifyHeightYScale, z-0.001f);
+		transform.position = new Vector3 (xy [0], xy [1] + mapCreate.chipSize*modifyHeightYScale, z-0.1f);
 	}
 	
 	// Update is called once per frame
@@ -87,7 +87,7 @@ public class charaMoveManager : MonoBehaviour {
 			nextY = mapy + 0;
 		}
 
-		if (mapCreate.canThrough (nextX, nextY)) {
+		if (mapCreate.canThrough (nextX, nextY,mapx,mapy)) {
 			StartCoroutine (moveCoroutine(nextX,nextY));
 		}
     }
@@ -105,7 +105,7 @@ public class charaMoveManager : MonoBehaviour {
 			transform.position = new Vector3 (xy [0] * (1 - i) + axy [0] * i, xy [1] * (1 - i) + axy [1] * i  + mapCreate.chipSize*modifyHeightYScale, az-0.001f);
 			yield return null;
 		}
-		transform.position = new Vector3 (axy [0], axy [1] + mapCreate.chipSize*modifyHeightYScale, az-0.001f);
+		transform.position = new Vector3 (axy [0], axy [1] + mapCreate.chipSize*modifyHeightYScale, az-0.1f);
 
 		mapx = nextX;
 		mapy = nextY;
@@ -122,7 +122,7 @@ public class charaMoveManager : MonoBehaviour {
 			SpriteManager.directionMode = SpriteManager.getDirectionEnum (action ["toD"]);
 			float [] xy2 = mapCreate.getXYPosition(mapx,mapy);
 			float z2 = mapCreate.getZPosition (mapx, mapy);
-			transform.position = new Vector3 (xy2[0],xy2[1] + mapCreate.chipSize*modifyHeightYScale, z2-0.001f);
+			transform.position = new Vector3 (xy2[0],xy2[1] + mapCreate.chipSize*modifyHeightYScale, z2-0.1f);
 		}
 
 		isControl = true;

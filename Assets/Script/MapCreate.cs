@@ -14,6 +14,7 @@ public class MapCreate : MonoBehaviour {
 
 	Sprite[] mapImageSprites;
 	ChipKind[,] map;
+	int[,] heightMap;
 	List< Dictionary<string,string> > actions;
 	enumDefine enumDefine;
 	List< GameObject > mapObjects;
@@ -47,6 +48,19 @@ public class MapCreate : MonoBehaviour {
 		if (sceneId == 0) {
 			mapXSize = 40;
 			mapYSize = 40;
+			int[,] tmpHeightMap = new int[10, 10] {
+				{ 0, 3, 3, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 },
+			};
+
 			ChipKind[,] tmpmap = new ChipKind[10, 10] { {
 					ChipKind.Grass,
 					ChipKind.Grass,
@@ -84,9 +98,9 @@ public class MapCreate : MonoBehaviour {
 					ChipKind.Grass,
 					ChipKind.Grass,
 					ChipKind.Grass,
-					ChipKind.Grass,
-					ChipKind.Grass,
-					ChipKind.Grass,
+					ChipKind.Sand,
+					ChipKind.Sand,
+					ChipKind.Sand,
 					ChipKind.Grass,
 					ChipKind.Grass,
 					ChipKind.Grass,
@@ -95,9 +109,9 @@ public class MapCreate : MonoBehaviour {
 					ChipKind.Grass,
 					ChipKind.Grass,
 					ChipKind.Grass,
-					ChipKind.GrassStone,
-					ChipKind.Grass,
-					ChipKind.GrassTree,
+					ChipKind.SandTree,
+					ChipKind.Sand,
+					ChipKind.SandTree,
 					ChipKind.GrassTree,
 					ChipKind.GrassTree,
 					ChipKind.Grass,
@@ -161,9 +175,11 @@ public class MapCreate : MonoBehaviour {
 			};
 
 			map = new ChipKind[mapYSize, mapXSize];
+			heightMap = new int[mapYSize, mapXSize];
 			for (int i = 0; i < mapYSize; i++) {
 				for (int j = 0; j < mapXSize; j++) {
 					map [i, j] = tmpmap [i % 10, j % 10];
+					heightMap [i, j] = tmpHeightMap [i % 10, j % 10];
 				}
 			}
 
@@ -203,6 +219,19 @@ public class MapCreate : MonoBehaviour {
 				{ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None,ChipKind.None},
 			};
 
+			heightMap = new int[10, 10] {
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+			};
+
 			Dictionary<string,string> action = new Dictionary<string,string> (){{"kind",enumDefine.getChipActionKindString(ChipActionKind.MoveScene)},
 				{"i","4"},
 				{"j","0"},
@@ -235,17 +264,64 @@ public class MapCreate : MonoBehaviour {
 			for (int j = 0; j < mapXSize; j++) {
 				if (map [i, j] == ChipKind.None)
 					continue;
-				int height = int.Parse(mapInfos [i, j]["height"]);
-				for (int h = 0; h < height; h++) {
+				int height = heightMap[i,j];
+
+				ChipBackKind backKind = ChipBackKind.Grass;
+				if (map [i, j] == ChipKind.Sand || map [i, j] == ChipKind.SandTree) {
+					backKind = ChipBackKind.Sand;
+				}
+
+				for (int h = 0; h <= height; h++) {
 					GameObject tmpObj = new GameObject ("Sprite");
-					int imageIndex = int.Parse(mapInfos [i, j]["chipId"]);
-					tmpObj.AddComponent<SpriteRenderer> ().sprite = mapImageSprites [imageIndex - h * 10];
-					//GameObject tmpObj = new GameObject ("Sprite").AddComponent<SpriteRenderer> ().sprite = mapImageSprites [map [i, j]];
+					int imageIndex = 0;
+					if (backKind == ChipBackKind.Sand) {
+						imageIndex = 12;
+					}
+
+					if (height >= 1) {
+						imageIndex = 47;
+						if (h != height) {
+							imageIndex = 37;
+						} else {
+							imageIndex = 17;
+							if (backKind == ChipBackKind.Sand) {
+								imageIndex = 12;
+							}
+						}
+					}
+
+					tmpObj.AddComponent<SpriteRenderer> ().sprite = mapImageSprites [imageIndex];
 					tmpObj.transform.position = new Vector3 (j * chipSize, (mapYSize - (i-h) - 1) * chipSize, getZPosition(j,mapYSize - 1 - i));
 					tmpObj.transform.parent = this.transform;
 					tmpObj.transform.localScale = new Vector3 (1.0f / spriteSize, 1.0f / spriteSize, 0.0f);
 
 					mapObjects.Add (tmpObj);
+
+					if(imageIndex == 47) {
+						int backImageIndex = 0;
+						if (backKind == ChipBackKind.Sand) {
+							backImageIndex = 12;
+						}
+						GameObject tmpObj2 = new GameObject ("Sprite");
+						tmpObj2.AddComponent<SpriteRenderer> ().sprite = mapImageSprites [backImageIndex];
+						tmpObj2.transform.position = new Vector3 (j * chipSize, (mapYSize - (i-h) - 1) * chipSize, getZPosition(j,mapYSize - 1 - i)+0.0001f);
+						tmpObj2.transform.parent = this.transform;
+						tmpObj2.transform.localScale = new Vector3 (1.0f / spriteSize, 1.0f / spriteSize, 0.0f);
+						mapObjects.Add (tmpObj2);
+					}
+				}
+
+				if(map[i,j] == ChipKind.GrassTree || map[i,j] == ChipKind.SandTree) {
+					for(int t=0;t<2;t++) {
+						int treeImageIndex = 20;
+						if(t == 1) treeImageIndex = 10;
+						GameObject tmpObj2 = new GameObject ("Sprite");
+						tmpObj2.AddComponent<SpriteRenderer> ().sprite = mapImageSprites [treeImageIndex];
+						tmpObj2.transform.position = new Vector3 (j * chipSize, (mapYSize - (i-(height+t)) - 1) * chipSize, getZPosition(j,mapYSize - 1 - i)-0.0001f);
+						tmpObj2.transform.parent = this.transform;
+						tmpObj2.transform.localScale = new Vector3 (1.0f / spriteSize, 1.0f / spriteSize, 0.0f);
+						mapObjects.Add (tmpObj2);
+					}
 				}
 			}
 		}
@@ -262,10 +338,17 @@ public class MapCreate : MonoBehaviour {
 		return action;
 	}
 
-	public bool canThrough(int x,int y) {
+	public bool canThrough(int x,int y,int nx,int ny) {
+		//高さが違うと移動させない
+
 		int I = mapYSize - y - 1;
 		int J = x;
 		if (J < 0 || I < 0 || J >= mapXSize || I >= mapYSize) {
+			return false;
+		}
+		int nI = mapYSize - ny - 1;
+		int nJ = nx;
+		if (heightMap [nI, nJ] != heightMap [I, J]) {
 			return false;
 		}
 		return Convert.ToBoolean (getChipInfo (map [I, J]) ["canThrough"]);
@@ -277,7 +360,7 @@ public class MapCreate : MonoBehaviour {
 		if (J < 0 || I < 0 || J >= mapXSize || I >= mapYSize) {
 			return -10000.0f;
 		}
-		return (mapYSize - I - 1) * chipSize*0.1f;
+		return (mapYSize - I - 1) * chipSize*1.0f;
 	}
 
 	public float[] getXYPosition(int x,int y) {
@@ -286,8 +369,11 @@ public class MapCreate : MonoBehaviour {
 		if (J < 0 || I < 0 || J >= mapXSize || I >= mapYSize) {
 			return new float[] { -10000.0f, -10000.0f };
 		}
-		int height = int.Parse(getChipInfo (map [I, J])["height"]);
-		return new float[] { J * chipSize, (mapYSize - (I - (height-1)) - 1) * chipSize };
+		float height = (float)heightMap[I,J];
+		if (map [I, J] == ChipKind.RightUpStair || map [I, J] == ChipKind.LeftUpStair) {
+			height += 0.5f;
+		}
+		return new float[] { J * chipSize, (mapYSize - (I - (height)) - 1) * chipSize };
 	}
 	
 	// Update is called once per frame
@@ -297,28 +383,16 @@ public class MapCreate : MonoBehaviour {
 
 	Dictionary<string,string> getChipInfo(ChipKind chipId) {
 		Dictionary<string,string> dic = new Dictionary<string,string> ();
-		/*
-		string isSea = "true";
-		if (chipId == ) {
-			isSea = "false";
-		}
-		dic ["isSea"] = isSea;
-		*/
+
 
 		dic ["chipId"] = ((int)chipId).ToString ();
 
 		string canThrough = "false";
-		if(chipId == ChipKind.Grass) {
+		if(chipId == ChipKind.Grass || chipId == ChipKind.Sand) {
 			canThrough = "true";
 		}
 
 		dic["canThrough"] = canThrough;
-
-		int height = 1;
-		if (chipId == ChipKind.GrassTree || chipId == ChipKind.GrassStone) {
-			height = 2;
-		}
-		dic ["height"] = height.ToString ();
 		
 		return dic;
 	}

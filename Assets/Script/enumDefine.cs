@@ -3,10 +3,18 @@ using System.Collections;
 
 public enum ChipKind {
 	None = -1,
-	Grass = 0,
-	GrassTree = 11,
-	GrassStone = 12,
+	Grass,
+	GrassTree,
+	Sand,
+	SandTree,
+	RightUpStair,
+	LeftUpStair,
 };
+
+public enum ChipBackKind {
+	Grass,
+	Sand,
+}
 
 public enum ChipActionKind {
 	None,
