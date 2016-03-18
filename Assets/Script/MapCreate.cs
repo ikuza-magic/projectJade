@@ -49,16 +49,16 @@ public class MapCreate : MonoBehaviour {
 			mapXSize = 40;
 			mapYSize = 40;
 			int[,] tmpHeightMap = new int[10, 10] {
-				{ 0, 3, 3, 0, 0, 0, 0, 0, 0, 0 },
-				{ 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 },
-				{ 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-				{ 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 },
+				{ 0, 2, 2, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 2, 2, 2, 2, 0, 0, 0, 0, 0 },
+				{ 0, 2, 2, 2, 2, 0, 0, 0, 0, 0 },
+				{ 0, 2, 2, 2, 2, 0, 0, 0, 0, 0 },
 				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-				{ 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 			};
 
 			ChipKind[,] tmpmap = new ChipKind[10, 10] { {
@@ -86,10 +86,10 @@ public class MapCreate : MonoBehaviour {
 				}, {
 					ChipKind.Grass,
 					ChipKind.Grass,
-					ChipKind.Grass,
-					ChipKind.Grass,
-					ChipKind.Grass,
 					ChipKind.GrassTree,
+					ChipKind.Sand,
+					ChipKind.Sand,
+					ChipKind.SandTree,
 					ChipKind.GrassTree,
 					ChipKind.GrassTree,
 					ChipKind.Grass,
@@ -271,21 +271,107 @@ public class MapCreate : MonoBehaviour {
 					backKind = ChipBackKind.Sand;
 				}
 
+				//周囲との境界条件を調べる
+				bool[] isSurfaceConnect = new bool[]{ true, true, true, true };
+				bool[] isHeightConnect = new bool[]{ true, true, true, true };
+				bool[] isSideConnect = new bool[]{ true, true, true, true };
+				int surfaceConnectIndex = 0;
+				int heightConnectIndex = 0;
+				int sideConnectIndex = 0;
+				for (int d = 0; d < 4; d++) {
+					int di = 0;
+					int dj = 0;
+					if (d == 0)
+						dj = -1;
+					if (d == 1)
+						di = -1;
+					if (d == 2)
+						dj = 1;
+					if (d == 3)
+						di = 1;
+					if (height >= 1) {
+						if (isInMap (i + di, j + dj)) {
+							int aroundHeight = heightMap [i + di, j + dj];
+							if (height != aroundHeight) {
+								isHeightConnect [d] = false;
+								isSideConnect [d] = false;
+								isSurfaceConnect [d] = false;
+							}
+						}
+					}
+					if (backKind == ChipBackKind.Sand) {
+						//砂地は周りが高さが違うか砂地じゃないなら境界条件
+						if (isInMap (i + di, j + dj)) {
+							if (map [i + di, j + dj] != ChipKind.Sand && map [i + di, j + dj] != ChipKind.SandTree) {
+								isSurfaceConnect [d] = false;
+							}
+						}
+					}
+				}
+				if (!isSurfaceConnect [0])
+					surfaceConnectIndex = -1;
+				if (!isSurfaceConnect [1])
+					surfaceConnectIndex = -10;
+				if (!isSurfaceConnect [2])
+					surfaceConnectIndex = 1;
+				if (!isSurfaceConnect [3])
+					surfaceConnectIndex = 10;
+				if (!isSurfaceConnect [0] && !isSurfaceConnect [1])
+					surfaceConnectIndex = -11;
+				if (!isSurfaceConnect [1] && !isSurfaceConnect [2])
+					surfaceConnectIndex = -9;
+				if (!isSurfaceConnect [2] && !isSurfaceConnect [3])
+					surfaceConnectIndex = 11;
+				if (!isSurfaceConnect [3] && !isSurfaceConnect [0])
+					surfaceConnectIndex = 9;
+
+				if (!isHeightConnect [0])
+					heightConnectIndex = -1;
+				if (!isHeightConnect [1])
+					heightConnectIndex = -10;
+				if (!isHeightConnect [2])
+					heightConnectIndex = 1;
+				if (!isHeightConnect [3])
+					heightConnectIndex = 10;
+				if (!isHeightConnect [0] && !isHeightConnect [1])
+					heightConnectIndex = -11;
+				if (!isHeightConnect [1] && !isHeightConnect [2])
+					heightConnectIndex = -9;
+				if (!isHeightConnect [2] && !isHeightConnect [3])
+					heightConnectIndex = 11;
+				if (!isHeightConnect [3] && !isHeightConnect [0])
+					heightConnectIndex = 9;
+
+				if (!isSideConnect [0])
+					sideConnectIndex = -1;
+				if (!isSideConnect [2])
+					sideConnectIndex = 1;
+
+
 				for (int h = 0; h <= height; h++) {
 					GameObject tmpObj = new GameObject ("Sprite");
 					int imageIndex = 0;
+					int backImageIndex = -1;//不必要なら-1にする
 					if (backKind == ChipBackKind.Sand) {
-						imageIndex = 12;
+						imageIndex = 12 + surfaceConnectIndex;
+						backImageIndex = 0;
 					}
 
 					if (height >= 1) {
-						imageIndex = 47;
-						if (h != height) {
-							imageIndex = 37;
+						if (h == 0) {
+							//根っこ
+							imageIndex = 47 + sideConnectIndex;
 						} else {
-							imageIndex = 17;
-							if (backKind == ChipBackKind.Sand) {
-								imageIndex = 12;
+							if (h != height) {
+								//側面
+								imageIndex = 37 + sideConnectIndex;
+							} else {
+								//天板
+								imageIndex = 17 + surfaceConnectIndex;
+								if (backKind == ChipBackKind.Sand) {
+									imageIndex = 12 + surfaceConnectIndex;
+									backImageIndex = 17 + heightConnectIndex;
+								}
 							}
 						}
 					}
@@ -297,11 +383,14 @@ public class MapCreate : MonoBehaviour {
 
 					mapObjects.Add (tmpObj);
 
-					if(imageIndex == 47) {
-						int backImageIndex = 0;
+					if(imageIndex >= 46 && imageIndex <= 48) {
+						backImageIndex = 0;
 						if (backKind == ChipBackKind.Sand) {
 							backImageIndex = 12;
 						}
+					}
+
+					if(backImageIndex != -1) {
 						GameObject tmpObj2 = new GameObject ("Sprite");
 						tmpObj2.AddComponent<SpriteRenderer> ().sprite = mapImageSprites [backImageIndex];
 						tmpObj2.transform.position = new Vector3 (j * chipSize, (mapYSize - (i-h) - 1) * chipSize, getZPosition(j,mapYSize - 1 - i)+0.0001f);
@@ -311,6 +400,7 @@ public class MapCreate : MonoBehaviour {
 					}
 				}
 
+				//木を追加
 				if(map[i,j] == ChipKind.GrassTree || map[i,j] == ChipKind.SandTree) {
 					for(int t=0;t<2;t++) {
 						int treeImageIndex = 20;
@@ -352,6 +442,13 @@ public class MapCreate : MonoBehaviour {
 			return false;
 		}
 		return Convert.ToBoolean (getChipInfo (map [I, J]) ["canThrough"]);
+	}
+
+	bool isInMap(int i,int j) {
+		if(i < 0 || j < 0 || i >= mapYSize || j >= mapXSize) {
+			return false;
+		}
+		return true;
 	}
 
 	public float getZPosition(int x,int y) {
